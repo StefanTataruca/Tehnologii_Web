@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="src/style.css">
+    <script src="https://kit.fontawesome.com/00005fdf7f.js" crossorigin="anonymous"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js"></script>
+    <title>Room Reservation</title>
+</head>
+<body style="background-color: #5623A9;">
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="contact-form loginbox">
+                    <form id="rezervareForm" class="was-validated">
+                        <label for="city" class="form-label">Select one city:</label>
+                        <select class="form-select" id="city" name="oras" required>
+                            <option>Timisoara</option>
+                            <option>Arad</option>
+                            <option>Cluj</option>
+                            <option>Bucharest</option>
+                        </select>
+
+                        <label for="participants" class="mt-3 form-label">Select number of participants:</label>
+                        <select class="form-select" id="participants" name="numarParticipanti" required>
+                            <option>5</option>
+                            <option>6</option>
+                            <option>7</option>
+                            <option>8</option>
+                            <option>9</option>
+                            <option>10</option>
+                            <!-- ... (continuați cu opțiunile dorite) ... -->
+                        </select>
+
+                        <label for="hours" class="form-label mt-3">Select number of hours reserved:</label>
+                        <select class="form-select" id="hours" name="nrOre" required>
+                            <option>1h</option>
+                            <option>2h</option>
+                            <option>3h</option>
+                            <option>4h</option>
+                            <option>5h</option>
+                            <option>6h</option>
+                        </select>
+
+                        <div class="form-check mt-3 mb-3">
+                            <input class="form-check-input" type="checkbox" id="myCheck" name="remember" required>
+                            <label class="form-check-label" for="myCheck">I agree to be held responsible in case of any damage to the goods</label>
+                            <div class="valid-feedback">Valid.</div>
+                            <div class="invalid-feedback">Check this checkbox to continue.</div>
+                        </div>
+
+                        <button type="button" class="btn btn-primary" onclick="submitForm()">Submit</button>
+                    </form>
+                </div>
+            </div>
+            <div id="room-image" class="col-sm-6">
+                <script src="src/myScript.js"></script>
+                <div class="card img-fluid" style="margin-top: 100px; border-radius: 50px;">
+                    <img class="card-img-top" src="src/Timisoara.jpeg" alt="Card image" style="width:100%; border-radius: 50px;">
+                    <div class="card-img-overlay">
+                      <h4 class="card-title">John Doe</h4>
+                      <p class="card-text">Some example text some example text. Some example text some example text. Some example text some example text. Some example text some example text.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function submitForm() {
+            var oras = document.getElementById('city').value;
+            var numarParticipanti = document.getElementById('participants').value;
+            var nrOre = document.getElementById('hours').value;
+
+            fetch('/rezervari', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ oras, numarParticipanti, nrOre }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
+    </script>
+</body>
+</html>

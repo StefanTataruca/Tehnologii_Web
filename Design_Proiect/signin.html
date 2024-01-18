@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign In</title>
+    <link rel="stylesheet" href="src/login_form.css">
+    <style>
+        .popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 20px;
+            background-color: #454141;
+            border: 1px solid #000000da;
+            box-shadow: 0 0 10px rgba(226, 222, 222, 0.826);
+            z-index: 1000;
+        }
+    </style>
+</head>
+<body>
+    <div class="contact-form loginbox">
+        <img src="src/avatar.jpeg" class="avatar">
+        <form method="post" action="/signup" id="signupForm">
+            <div class="txt_field">
+                <input type="text" name="first_name" required>
+                <span></span>
+                <label>First name</label>
+            </div>
+
+            <div class="txt_field">
+                <input type="text" name="last_name" required>
+                <span></span>
+                <label>Last name</label>
+            </div>
+
+            <div class="txt_field">
+                <input type="text" name="email" required>
+                <span></span>
+                <label>E-mail</label>
+            </div>
+
+            <div class="txt_field">
+                <input type="text" name="phone_no" required>
+                <span></span>
+                <label>Phone no.</label>
+            </div>
+
+            <div class="txt_field">
+                <input type="text" name="username" required>
+                <span></span>
+                <label>Username</label>
+            </div>
+
+            <div class="txt_field">
+                <input type="password" name="password" required>
+                <span></span>
+                <label>Password</label>
+            </div>
+
+            <input type="submit" value="Sign up">
+        </form>
+
+        <div id="popup" class="popup">
+            <p id="popupMessage"></p>
+            <button onclick="hidePopup()">OK</button>
+        </div>
+
+        <script>
+            function showAlert(message) {
+        document.getElementById('popupMessage').innerText = message;
+        document.getElementById('popup').style.display = 'block';
+
+        // Redirecționează la /home după afișarea mesajului
+        if (message === 'Formular trimis la server!') {
+            setTimeout(function () {
+                window.location.href = '/home';
+            }, 2000);  // Așteaptă 2 secunde înainte de a redirecționa, dar poți ajusta acest interval
+        }
+    }
+
+            function hidePopup() {
+                document.getElementById('popup').style.display = 'none';
+            }
+
+            const signupForm = document.getElementById('signupForm');
+            signupForm.addEventListener('submit', function (event) {
+                event.preventDefault();
+
+                // Obțineți valorile din formular
+                const firstName = signupForm.querySelector('[name="first_name"]').value;
+                const lastName = signupForm.querySelector('[name="last_name"]').value;
+                const email = signupForm.querySelector('[name="email"]').value;
+                const phoneNo = signupForm.querySelector('[name="phone_no"]').value;
+                const username = signupForm.querySelector('[name="username"]').value;
+
+                // Validare parolă
+                const password = signupForm.querySelector('[name="password"]').value;
+                if (!isValidPassword(password)) {
+                    showAlert('Parola trebuie să conțină cel puțin 8 caractere, litere mari și mici, cel puțin o cifră și un caracter special.');
+                    return;
+                }
+
+                // Validare e-mail
+                if (!isValidEmail(email)) {
+                    showAlert('Formatul adresei de e-mail nu este valid.');
+                    return;
+                }
+
+                // Validare număr de telefon
+                if (!isValidPhoneNumber(phoneNo)) {
+                    showAlert('Numărul de telefon trebuie să conțină exact 10 cifre.');
+                    return;
+                }
+
+                // Validare nume și prenume
+                if (!isValidName(firstName) || !isValidName(lastName)) {
+                    showAlert('Numele și prenumele nu trebuie să conțină caractere speciale.');
+                    return;
+                }
+
+                // Alte validări pentru celelalte câmpuri asemănătoare
+
+                // Dacă totul este valid, puteți trimite formularul la server
+                showAlert('Formular trimis la server!'); // Mesaj de exemplu
+
+                saveUserDataToDatabase(firstName, lastName, email, phoneNo, username, password);
+    });
+
+    // Funcție pentru a trimite datele la server și a le salva în baza de date
+    function saveUserDataToDatabase(firstName, lastName, email, phoneNo, username, password) {
+        const xhr = new XMLHttpRequest();
+        const url = '/signup'; // Ajustează URL-ul în funcție de configurarea serverului
+        const params = `first_name=${firstName}&last_name=${lastName}&email=${email}&phone_no=${phoneNo}&username=${username}&password=${password}`;
+
+        xhr.open('POST', url, true);
+        xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === 4 && xhr.status === 200) {
+                // Succes - afișează mesajul
+                showAlert('Formular trimis la server!');
+            } else if (xhr.readyState === 4 && xhr.status !== 200) {
+                // Eroare - afișează mesaj de eroare
+                showAlert('Eroare la trimiterea datelor la server.');
+            }
+        };
+
+        xhr.send(params);
+    }
+
+    // Funcții de validare
+    function isValidPassword(password) {
+        // Validare pentru parolă (minim 8 caractere, litere mari și mici, cel puțin o cifră și un caracter special)
+        return /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*(),.?":{}|<>])/.test(password) && password.length >= 8;
+    }
+
+    function isValidEmail(email) {
+        // Validare pentru formatul adresei de e-mail
+        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    }
+
+    function isValidPhoneNumber(phoneNo) {
+        // Validare pentru numărul de telefon (exact 10 cifre)
+        return /^\d{10}$/.test(phoneNo);
+    }
+
+    function isValidName(name) {
+        // Validare pentru nume și prenume (fără caractere speciale)
+        return /^[a-zA-Z]+$/.test(name);
+    }
+        </script>
+    </div>
+</body>
+</html>
